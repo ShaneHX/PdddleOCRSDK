@@ -221,8 +221,8 @@ add_executable(${DEMO_NAME} ${SRCS})
 target_link_libraries(${DEMO_NAME} ${DEPS})
 
 set(BUILD_SHARED_LIBS ON)
-add_library(PaddleOCRExport SHARED ${SRCS})
-target_link_libraries(PaddleOCRExport ${DEPS})
+add_library(PaddleOCRSDK SHARED ${SRCS})
+target_link_libraries(PaddleOCRSDK ${DEPS})
 
 if (WIN32 AND WITH_MKL)
     add_custom_command(TARGET ${DEMO_NAME} POST_BUILD
