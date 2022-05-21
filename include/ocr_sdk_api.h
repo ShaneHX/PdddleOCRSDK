@@ -70,7 +70,7 @@ extern "C"
                             char* cls_model_dir, 
                             char* rec_char_dict_path);
     DLLEXPORT int OCRRun(cv::Mat& img, LpOCRResult* resptr, bool det, bool rec, bool use_angle_cls);
-    DLLEXPORT void FreeDetectResult(LpOCRResult pOCRResult);
+    DLLEXPORT void FreeDetectResult(LpOCRResult& pOCRResult);
 
 #ifdef __cplusplus
 }

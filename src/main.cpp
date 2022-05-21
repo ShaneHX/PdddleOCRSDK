@@ -112,12 +112,32 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
 #include <iostream>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+
 int main()
 {
-    char det_path[] = "D:\\WorkSpace\\paddle-ocrsharp\\PaddleOCRLib\\inference\\ch_PP-OCRv3_det_infer";
-    char rec_path[] = "D:\\WorkSpace\\paddle-ocrsharp\\PaddleOCRLib\\inference\\ch_PP-OCRv3_rec_infer";
-    char cls_path[] = "D:\\WorkSpace\\paddle-ocrsharp\\PaddleOCRLib\\inference\\ch_ppocr_mobile_v2.0_cls_infer";
-    char key_path[] = "D:\\WorkSpace\\paddle-ocrsharp\\PaddleOCRLib\\inference\\ppocr_keys.txt";
+    cv::Mat game_window_img = cv::imread("D:\\WorkSpace\\GodCreatorV2\\test\\work_dir\\dataset\\1653044764636.jpg");
+
+    cv::Mat weapon_region_img = cv::Mat(game_window_img, cv::Rect(2175, 820, 385, 550 + 70));
+
+
+    char det_path[] = "D:\\WorkSpace\\HyperFps\\models\\en_PP-OCRv3_det_slim_infer";
+    char rec_path[] = "D:\\WorkSpace\\HyperFps\\models\\en_PP-OCRv3_rec_slim_infer";
+    char cls_path[] = "D:\\WorkSpace\\HyperFps\\models\\ch_ppocr_mobile_v2.0_cls_slim_infer";
+    char key_path[] = "D:\\WorkSpace\\HyperFps\\models\\dict\\en_dict.txt";
+
+
+    InitialSDK(true, true, true, det_path, rec_path, cls_path, key_path);
+    LpOCRResult lpocrreult;
+    SetConsoleOutputCP(CP_UTF8);
+
+
+
+    std::vector<cv::Mat> weapon_region_vec;
+
+    const int weapon_region_w = weapon_region_img.cols;
+    const int weapon_region_h = weapon_region_img.rows;
 
 
     LARGE_INTEGER timeStart;	//开始时间
@@ -127,31 +147,59 @@ int main()
     QueryPerformanceFrequency(&frequency);
     double quadpart = (double)frequency.QuadPart;//计时器频率
 
-	InitialSDK(true, true, true, det_path, rec_path, cls_path, key_path);
 
+ //   cv::imshow("src_weapon_region", weapon_region_img);
+ //   cv::waitKey();
+ //   QueryPerformanceCounter(&timeStart);
+    //OCRRun(weapon_region_img, &lpocrreult, true, true, false);
+    //QueryPerformanceCounter(&timeEnd);
+ //   double time_cost = double((timeEnd.QuadPart - timeStart.QuadPart) / quadpart);
+ //   D_INFO("time cost: %f", time_cost);
+ //   cv::waitKey();
 
-    //cv::Mat img = cv::imread("D:\\WorkSpace\\PaddleOCRDemo\\test_img\\1.png");
-    cv::Mat img = cv::imread("D:\\WorkSpace\\PaddleOCRDemo\\test_img\\2.jpg");
-    LpOCRResult lpocrreult;
-    SetConsoleOutputCP(CP_UTF8);
-    DWORD det_num = 0;
-    double total_time = 0.0;
-    for(int i =0; i < 10000; i++)
+    for (int i = 0; i < 5; i++)
     {
+
+        int start_y = weapon_region_h - (i + 1) * 110 - 70;
+        std::cout << "start_y:" << start_y << std::endl;
+        cv::Mat s_weapon_region = cv::Mat(weapon_region_img, cv::Rect(0, start_y, weapon_region_w, 110));
+        cv::Mat s_region_idx_img = cv::Mat(s_weapon_region, cv::Rect(s_weapon_region.cols - 20, 5, 20, 40));
+        cv::Mat show_idx_img;
+        //cv::resize(s_region_idx_img, show_idx_img, cv::Size(100, 100));
+        //QueryPerformanceCounter(&timeStart);
+        //auto a = OCRRun(show_idx_img, &lpocrreult, true, true, false);
+        //QueryPerformanceCounter(&timeEnd);
+
+        cv::resize(s_region_idx_img, show_idx_img, cv::Size(100, 100));
         QueryPerformanceCounter(&timeStart);
-        OCRRun(img, &lpocrreult, true, true, true);
+        auto a = OCRRun(weapon_region_img, &lpocrreult, true, true, false);
         QueryPerformanceCounter(&timeEnd);
-        det_num++;
 
-
-        //得到两个时间的耗时
-        total_time += (timeEnd.QuadPart - timeStart.QuadPart) / quadpart;
+        double time_cost = double((timeEnd.QuadPart - timeStart.QuadPart) / quadpart);
+        std::cout << "time_cost:" << time_cost << std::endl;
 
         FreeDetectResult(lpocrreult);
-        std::cout << "time cost:" << total_time/ det_num << std::endl;
+        cv::imshow(std::to_string(i) + "src", s_weapon_region);
+        cv::imshow(std::to_string(i), show_idx_img);
+        s_weapon_region.release();
+        s_region_idx_img.release();
+        show_idx_img.release();
 
-        Sleep(100);
 
     }
 
+
+
+
+
+
+
+
+    cv::imshow("test", weapon_region_img);
+
+
+
+    cv::waitKey();
+
 }
+
